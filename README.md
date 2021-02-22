@@ -1,6 +1,6 @@
 # CALITAS
 
-This repository is home to **CALITAS**, a _CRISPR/Cas-aware ALigner for In silico off-TArget Search_.  CALITAS implements a customized gapped alignment of guide sequences to genomes and other reference sequences, returning consistent and non-redundant alignments.
+This repository is home to **CALITAS**, a _CRISPR-Cas-aware ALigner for In silico off-TArget Search_.  CALITAS implements a customized gapped alignment of guide sequences to genomes and other reference sequences, returning consistent and non-redundant alignments.
 
 ## Overview
 
