@@ -43,7 +43,8 @@ class PrepareVcf
       val tmp = VcfSource(input.head)
       val h   = tmp.header
       tmp.close()
-      dict match {
+
+      val outHeader = dict match {
         case None => h
         case Some(path) =>
           val d = SAMSequenceDictionaryExtractor.extractDictionary(path)
@@ -52,6 +53,8 @@ class PrepareVcf
             others = h.others.filterNot(_.headerType == "reference") ++ Seq(VcfGeneralHeader("reference", d.getSequence(0).getAssembly))
           )
       }
+
+      outHeader.copy(samples = IndexedSeq.empty)
     }
 
     val out = VcfWriter(output, header)
