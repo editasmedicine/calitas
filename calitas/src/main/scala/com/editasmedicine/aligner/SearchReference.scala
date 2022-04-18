@@ -1,10 +1,8 @@
 package com.editasmedicine.aligner
 
 import java.util.concurrent._
-
 import com.editasmedicine.aligner.SearchReference.NoDictFastaFile
 import com.editasmedicine.aligner.SequentialGuideAligner._
-import com.editasmedicine.commons.LazyLogging
 import com.editasmedicine.commons.clp.{ClpGroups, EditasTool}
 import com.fulcrumgenomics.FgBioDef._
 import com.fulcrumgenomics.alignment.{Cigar, CigarElem}
@@ -16,7 +14,7 @@ import com.fulcrumgenomics.vcf.api.{ArrayAttr, Variant, VcfSource}
 import htsjdk.samtools.reference.{FastaSequenceFile, ReferenceSequence, ReferenceSequenceFileFactory}
 import htsjdk.samtools.util.{Interval, SequenceUtil, StringUtil}
 import htsjdk.samtools.{CigarOperator, SAMSequenceDictionary}
-import com.fulcrumgenomics.commons.util.{StringUtil => Strings}
+import com.fulcrumgenomics.commons.util.{LazyLogging, StringUtil => Strings}
 import htsjdk.variant.utils.SAMSequenceDictionaryExtractor
 
 import scala.collection.mutable
@@ -476,7 +474,14 @@ class SearchReference
   Io.assertReadable(ref)
   Io.assertCanWriteFile(output)
 
-  private val dict = SAMSequenceDictionaryExtractor.extractDictionary(ref)
+
+  private val dict = try {
+    SAMSequenceDictionaryExtractor.extractDictionary(ref)
+  }
+  catch { case e =>
+    e.printStackTrace()
+    throw e
+  }
 
   private val aligner  = new SequentialGuideAligner(
     mismatchNetCost    = guideMismatchNetCost,
@@ -631,7 +636,7 @@ class SearchReference
     // Sort, filter and output the alignments
     ////////////////////////////////////////////////////////////////////////////
     logger.info("Sorting and Outputting.")
-    val keepers = removeOverlaps(hits, maxOverlap)
+    val keepers = removeOverlaps(hits.toSeq, maxOverlap)
 
     val fwdFraction = keepers.count(_.strand == "+") / keepers.size.toDouble
     if (fwdFraction > 0.52 || fwdFraction < 0.48) logger.warning(f"Strand imbalance: $fwdFraction%2f of alignments are on the F strand.")
