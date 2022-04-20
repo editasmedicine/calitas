@@ -5,10 +5,12 @@ import java.util.stream.Collectors
 
 import com.fulcrumgenomics.commons.CommonsDef._
 import com.fulcrumgenomics.commons.io.PathUtil
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.OptionValues
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /** Base class for unit tests. */
-class UnitSpec extends FlatSpec with Matchers {
+class UnitSpec extends AnyFlatSpec with Matchers with OptionValues {
   /** Creates a new temp file for use in testing that will be deleted when the VM exits. */
   protected def makeTempFile(prefix: String, suffix: String) : Path = {
     val path = Files.createTempFile(prefix, suffix)

@@ -35,7 +35,8 @@ lazy val ToolkitVersion = {
   date + "-" + hash + (if (modified) "-dirty" else "")
 }
 
-version in ThisBuild := ToolkitVersion
+ThisBuild / useCoursier :=  false
+ThisBuild / version     := ToolkitVersion
 
 lazy val commonSettings = Seq(
   organization         := "com.editasmedicine",
@@ -43,12 +44,10 @@ lazy val commonSettings = Seq(
   organizationHomepage := Some(url("http://www.editasmedicine.com/")),
   homepage             := Some(url("https://bitbucket.org/editascomputationalbiology/")),
   startYear            := Some(2017),
-  scalaVersion         := "2.12.8",
+  scalaVersion         := "2.13.8",
   scalacOptions        += "-target:jvm-1.8",
   autoAPIMappings      := true,
   version              := ToolkitVersion,
-  testOptions in Test  += Tests.Argument(TestFrameworks.ScalaTest, "-h", Option(System.getenv("TEST_HTML_REPORTS")).getOrElse(htmlReportsDirectory)),
-  testOptions in Test  += Tests.Argument("-oDF"),
   resolvers            += Resolver.jcenterRepo,
   resolvers            += Resolver.sonatypeRepo("public"),
   resolvers            += Resolver.mavenLocal,
@@ -56,18 +55,20 @@ lazy val commonSettings = Seq(
   resolvers            += "BroadSnapshots" at "https://broadinstitute.jfrog.io/broadinstitute/libs-snapshot-local/",
   shellPrompt          := { state => "%s| %s> ".format(GitCommand.prompt.apply(state), version.value) },
   updateOptions        := updateOptions.value.withCachedResolution(true),
-  javaOptions in Test  += "-Xmx1G",
-  fork in Test         := true
+  Test / testOptions   += Tests.Argument(TestFrameworks.ScalaTest, "-h", Option(System.getenv("TEST_HTML_REPORTS")).getOrElse(htmlReportsDirectory)),
+  Test / testOptions   += Tests.Argument("-oDF"),
+  Test / javaOptions   += "-Xmx1G",
+  Test / fork          := true
 ) ++ Defaults.coreDefaultSettings
 
 lazy val assemblySettings = Seq(
   // Assembly related settings
-  assemblyJarName in assembly := s"${name.value}.jar",
-  test in assembly := {},
-  assemblyMergeStrategy in assembly := {
+  assembly / assemblyJarName := s"${name.value}.jar",
+  assembly / test := {},
+  assembly / assemblyMergeStrategy := {
     case PathList("log4j2.xml") => MergeStrategy.first
     case x =>
-      val oldStrategy = (assemblyMergeStrategy in assembly).value
+      val oldStrategy = (assembly / assemblyMergeStrategy).value
       oldStrategy(x)
   }
 )
@@ -79,12 +80,12 @@ lazy val commons = Project(id="commons", base=file("commons"))
   .settings(commonSettings: _*)
   .settings(description := "Utility and base classes used across projects.")
   .settings(libraryDependencies ++= Seq(
-      "org.scalatest"       %% "scalatest"     % "3.0.5" % "test->*" excludeAll ExclusionRule(organization="org.junit", name="junit"),
-      "com.fulcrumgenomics" %% "sopt"          % "0.7.0",
-      "com.fulcrumgenomics" %% "commons"       % "0.7.0",
-      "com.fulcrumgenomics" %% "fgbio"         % "1.1.0-4f11a43-SNAPSHOT" excludeAll(htsjdkAndPicardExcludes:_*),
-      "com.beachape"        %% "enumeratum"    % "1.5.12",
-      "com.github.samtools"  % "htsjdk"        % "2.19.0-26-g1e3f1fa-SNAPSHOT" excludeAll(htsjdkAndPicardExcludes: _*)
+      "org.scalatest"       %% "scalatest"     % "3.1.3" % "test->*" excludeAll ExclusionRule(organization="org.junit", name="junit"),
+      "com.fulcrumgenomics" %% "sopt"          % "1.1.0",
+      "com.fulcrumgenomics" %% "commons"       % "1.4.0",
+      "com.fulcrumgenomics" %% "fgbio"         % "2.0.0" excludeAll(htsjdkAndPicardExcludes:_*),
+      "com.beachape"        %% "enumeratum"    % "1.7.0",
+      "com.github.samtools"  % "htsjdk"        % "2.24.1" excludeAll(htsjdkAndPicardExcludes: _*)
       ),
   )
   .disablePlugins(AssemblyPlugin)

@@ -1,13 +1,12 @@
 package com.editasmedicine.commons.clp
 
-import com.editasmedicine.commons.LazyLogging
 import com.fulcrumgenomics.cmdline.FgBioTool
 import com.fulcrumgenomics.sopt.cmdline.ValidationException
 
 import scala.collection.mutable.ListBuffer
 
 /** Base trait which all command line tools should extend. */
-trait EditasTool extends FgBioTool with LazyLogging {
+trait EditasTool extends FgBioTool {
   private val validationFailures = new ListBuffer[String]()
 
   /** Add a validation failure but don't fail just yet. */
