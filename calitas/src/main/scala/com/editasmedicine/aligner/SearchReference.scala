@@ -31,7 +31,7 @@ object SearchReference extends LazyLogging {
   case class RefWindow(chrom: String, start: Int, end: Int, bases: Array[Byte])
 
   /** Trivial class so we can drop the sequence dictionary as fast as possible. */
-  private[aligner] class NoDictFastaFile(ref: PathToFasta) extends FastaSequenceFile(ref, false) {
+  private[aligner] class NoDictFastaFile(ref: PathToFasta) extends FastaSequenceFile(ref, true) {
     override def findAndLoadSequenceDictionary(ref: PathToFasta): SAMSequenceDictionary = null
   }
 
@@ -553,7 +553,9 @@ class SearchReference
               progress.record(window.chrom, window.start)
             }
             catch {
-              case ex: Throwable => logger.error(s"Encountered an exception: $ex")
+              case ex: Throwable =>
+                logger.error(s"Encountered an exception: $ex")
+                ex.printStackTrace()
             }
           })
         }
